@@ -1,5 +1,5 @@
 import * as S from './AnalyzedResult.styled';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import useLottoContext from '../../../hooks/useLottoContext';
 import { PRIZE_MONEY } from '../../../constants/lotto';
 
@@ -32,9 +32,8 @@ function AnalyzedResult({ onClose }: AnalyzedResultProps) {
   const { lottoNumbers, winningNumbers, bonusNumber, inputAmountValue } =
     useLottoContext();
   const [result, setResult] = useState<ResultType>(INITIAL_RESULT_VALUE);
-  const hasRunEffect = useRef(false);
 
-  const calculateResults = () => {
+  const calculateResults = useMemo(() => {
     return Object.values(lottoNumbers).map((values) => {
       const matchCount = values.reduce((acc: number, value: number) => {
         if (winningNumbers.includes(String(value))) {
@@ -45,35 +44,29 @@ function AnalyzedResult({ onClose }: AnalyzedResultProps) {
       const isBonus = values.includes(bonusNumber);
       return { matchCount, isBonus };
     });
-  };
+  }, [lottoNumbers, winningNumbers, bonusNumber]);
 
-  const handleResult = (results: ResultsType[]) => {
-    setResult((prev) => {
-      const updatedResult = { ...prev };
-      results.forEach(({ matchCount, isBonus }) => {
-        if (isBonus && matchCount === 5) {
-          updatedResult.bonus = (updatedResult.bonus ?? 0) + 1;
-        } else if (matchCount === 6) {
-          updatedResult['6'] = (updatedResult['6'] ?? 0) + 1;
-        } else if (matchCount === 5) {
-          updatedResult['5'] = (updatedResult['5'] ?? 0) + 1;
-        } else if (matchCount === 4) {
-          updatedResult['4'] = (updatedResult['4'] ?? 0) + 1;
-        } else if (matchCount === 3) {
-          updatedResult['3'] = (updatedResult['3'] ?? 0) + 1;
-        }
-      });
-      return updatedResult;
+  const handleResult = useCallback((results: ResultsType[]) => {
+    const updatedResult = { ...INITIAL_RESULT_VALUE };
+    results.forEach(({ matchCount, isBonus }) => {
+      if (isBonus && matchCount === 5) {
+        updatedResult.bonus += 1;
+      } else if (matchCount === 6) {
+        updatedResult['6'] += 1;
+      } else if (matchCount === 5) {
+        updatedResult['5'] += 1;
+      } else if (matchCount === 4) {
+        updatedResult['4'] += 1;
+      } else if (matchCount === 3) {
+        updatedResult['3'] += 1;
+      }
     });
-  };
+    setResult(updatedResult);
+  }, []);
 
   useEffect(() => {
-    if (hasRunEffect.current) return;
-
-    const results = calculateResults();
+    const results = calculateResults;
     handleResult(results);
-
-    hasRunEffect.current = true;
   }, []);
 
   const calculateProfit = (result: ResultType) => {
@@ -86,14 +79,14 @@ function AnalyzedResult({ onClose }: AnalyzedResultProps) {
     return totalProfit;
   };
 
-  const calculateYield = () => {
+  const totalProfit = useMemo(() => calculateProfit(result), [result]);
+  const calculateYield = useMemo(() => {
     const totalInvestment = parseInt(inputAmountValue, 10) ?? 0;
-    const totalProfit = calculateProfit(result);
     return Math.max(
       0,
       ((totalProfit - totalInvestment) / totalInvestment) * 100,
     );
-  };
+  }, [totalProfit, inputAmountValue]);
 
   return (
     <S.Layout>
@@ -135,7 +128,7 @@ function AnalyzedResult({ onClose }: AnalyzedResultProps) {
         </tbody>
       </S.Table>
       <S.YieldText>
-        당신의 총 수익률은 {calculateYield().toFixed(2).toLocaleString()}
+        당신의 총 수익률은 {calculateYield.toFixed(2).toLocaleString()}
         %입니다.
       </S.YieldText>
 
