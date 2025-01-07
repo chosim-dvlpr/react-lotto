@@ -33,6 +33,10 @@ function AnalyzedResult({ onClose }: AnalyzedResultProps) {
     useLottoContext();
   const [result, setResult] = useState<ResultType>(INITIAL_RESULT_VALUE);
 
+  const isResultTypeKey = (key: string): key is keyof ResultType => {
+    return Object.keys(result).includes(key);
+  };
+
   const calculateResults = useMemo(() => {
     return Object.values(lottoNumbers).map((values) => {
       const matchCount = values.reduce((acc: number, value: number) => {
@@ -72,8 +76,10 @@ function AnalyzedResult({ onClose }: AnalyzedResultProps) {
   const calculateProfit = (result: ResultType) => {
     let totalProfit = 0;
     Object.entries(result).forEach(([key, count]) => {
-      const prize = PRIZE_MONEY[key as keyof typeof PRIZE_MONEY] ?? 0;
-      totalProfit += prize * count;
+      if (isResultTypeKey(key)) {
+        const prize = PRIZE_MONEY[key] ?? 0;
+        totalProfit += prize * count;
+      }
     });
 
     return totalProfit;
