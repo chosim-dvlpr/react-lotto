@@ -77,7 +77,7 @@ function AnalyzedResult({ onClose }: AnalyzedResultProps) {
     let totalProfit = 0;
     Object.entries(result).forEach(([key, count]) => {
       if (isResultTypeKey(key)) {
-        const prize = PRIZE_MONEY[key] ?? 0;
+        const prize = PRIZE_MONEY.get(key) ?? 0;
         totalProfit += prize * count;
       }
     });
@@ -106,31 +106,13 @@ function AnalyzedResult({ onClose }: AnalyzedResultProps) {
           </tr>
         </S.Thead>
         <tbody>
-          <S.Tr>
-            <S.Td>3개</S.Td>
-            <S.Td>{PRIZE_MONEY[3].toLocaleString()}</S.Td>
-            <S.Td>{result[3]}개</S.Td>
-          </S.Tr>
-          <S.Tr>
-            <S.Td>4개</S.Td>
-            <S.Td>{PRIZE_MONEY[4].toLocaleString()}</S.Td>
-            <S.Td>{result[4]}개</S.Td>
-          </S.Tr>
-          <S.Tr>
-            <S.Td>5개</S.Td>
-            <S.Td>{PRIZE_MONEY[5].toLocaleString()}</S.Td>
-            <S.Td>{result[5]}개</S.Td>
-          </S.Tr>
-          <S.Tr>
-            <S.Td>5개+보너스볼</S.Td>
-            <S.Td>{PRIZE_MONEY.bonus.toLocaleString()}</S.Td>
-            <S.Td>{result.bonus}개</S.Td>
-          </S.Tr>
-          <S.Tr>
-            <S.Td>6개</S.Td>
-            <S.Td>{PRIZE_MONEY[6].toLocaleString()}</S.Td>
-            <S.Td>{result[6]}개</S.Td>
-          </S.Tr>
+          {[...PRIZE_MONEY.entries()].map(([key, prize]) => (
+            <S.Tr key={key}>
+              <S.Td>{key === 'bonus' ? '5개+보너스볼' : `${key}개`}</S.Td>
+              <S.Td>{prize.toLocaleString()}원</S.Td>
+              <S.Td>{isResultTypeKey(key) ? result[key] : 0}개</S.Td>
+            </S.Tr>
+          ))}
         </tbody>
       </S.Table>
       <S.YieldText>
