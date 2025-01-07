@@ -12,6 +12,7 @@ export const getRandomNumbers = (count: number): RandomNumbersType => {
         randomNumbers.push(number);
       }
     }
+    randomNumbers.sort((a, b) => a - b);
     result[i] = randomNumbers;
     i++;
   }
