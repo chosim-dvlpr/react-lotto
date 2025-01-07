@@ -101,7 +101,7 @@ function WinnerInput() {
         </S.Button>
       </S.Form>
 
-      <Modal isOpen={isModalOpen}>
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <AnalyzedResult onClose={handleCloseModal} />
       </Modal>
     </>
