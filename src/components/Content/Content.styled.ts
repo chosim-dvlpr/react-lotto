@@ -48,7 +48,7 @@ export const InputLabelText = styled.p`
 export const Input = styled.input`
   width: 100%;
   padding: 8px;
-  
+
   border: 1px solid rgba(180, 180, 180, 1);
   border-radius: 4px;
 
@@ -71,4 +71,9 @@ export const InputButton = styled.button`
   border-radius: 4px;
   background-color: ${theme.color.blue};
   color: #ffffff;
+
+  &:disabled {
+    background-color: ${theme.color.greyScale3};
+    cursor: not-allowed;
+  }
 `;

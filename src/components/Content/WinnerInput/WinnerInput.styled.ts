@@ -63,4 +63,9 @@ export const Button = styled.button`
 
   background-color: ${theme.color.blue};
   color: #ffffff;
+
+  &:disabled {
+    background-color: ${theme.color.greyScale4};
+    cursor: not-allowed;
+  }
 `;

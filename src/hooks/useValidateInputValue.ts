@@ -1,18 +1,13 @@
 import { useState } from 'react';
-import useValidateRange from './useValidateRange';
-import useValidateNumber from './useValidateNumber';
-import useValidateUnit from './useValidateUnit';
 import { LOTTO } from '../constants/lotto';
+import { validate } from '../utils/validate';
 
 const useValidateInputValue = (initialValue: string) => {
   const [isValid, setIsValid] = useState(false);
   const [inputValue, setInputValue] = useState(initialValue);
-  const { validateRange } = useValidateRange();
-  const { validateNumber } = useValidateNumber();
-  const { validateUnit } = useValidateUnit();
 
   const validateInputValue = (value: string) => {
-    if (!validateNumber(value)) {
+    if (!validate.isNumber(value)) {
       setInputValue('');
       setIsValid(false);
       return;
@@ -20,12 +15,12 @@ const useValidateInputValue = (initialValue: string) => {
 
     const numberValue = Number(value);
 
-    if (!validateRange(numberValue, LOTTO.AMOUNT_MIN, LOTTO.AMOUNT_MAX)) {
+    if (!validate.isInRange(numberValue, LOTTO.AMOUNT_MIN, LOTTO.AMOUNT_MAX)) {
       setInputValue('');
       setIsValid(false);
       return;
     }
-    if (!validateUnit(numberValue)) {
+    if (!validate.isInUnit(numberValue)) {
       setInputValue('');
       setIsValid(false);
       return;

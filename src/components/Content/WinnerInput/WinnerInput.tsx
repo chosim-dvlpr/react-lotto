@@ -1,12 +1,10 @@
 import * as S from './WinnerInput.styled';
 import useLottoContext from '../../../hooks/useLottoContext';
-import useValidateRange from '../../../hooks/useValidateRange';
-import useValidateNumbersLength from '../../../hooks/useValidateNumbersLength';
-import useValidateNumber from '../../../hooks/useValidateNumber';
 import { LOTTO } from '../../../constants/lotto';
 import useModal from '../../../hooks/useModal';
 import Modal from '../../Modal/Modal';
 import AnalyzedResult from '../AnalyzedResult/AnalyzedResult';
+import { validate } from '../../../utils/validate';
 
 function WinnerInput() {
   const {
@@ -16,9 +14,6 @@ function WinnerInput() {
     setBonusNumber,
     setInputAmountValue,
   } = useLottoContext();
-  const { validateNumber } = useValidateNumber();
-  const { validateRange } = useValidateRange();
-  const { validateNumbersLength } = useValidateNumbersLength();
   const { openModal, closeModal, isModalOpen } = useModal();
 
   const handleWinningNumberChange = (index: number, value: string) => {
@@ -33,10 +28,10 @@ function WinnerInput() {
     const isValid =
       winningNumbers.every(
         (number) =>
-          validateNumber(number) &&
-          validateRange(Number(number), LOTTO.MIN, LOTTO.MAX),
+          validate.isNumber(number) &&
+          validate.isInRange(Number(number), LOTTO.MIN, LOTTO.MAX),
       ) &&
-      validateNumbersLength(winningNumbers, LOTTO.COUNT) &&
+      validate.isInLength(winningNumbers, LOTTO.COUNT) &&
       new Set(winningNumbers).size === LOTTO.COUNT;
 
     return isValid;
@@ -44,9 +39,9 @@ function WinnerInput() {
 
   const checkBonusNumber = () => {
     const isValid =
-      validateNumber(bonusNumber) &&
-      validateRange(Number(bonusNumber), LOTTO.MIN, LOTTO.MAX) &&
-      validateNumbersLength([bonusNumber], LOTTO.MIN_COUNT) &&
+      validate.isNumber(bonusNumber) &&
+      validate.isInRange(Number(bonusNumber), LOTTO.MIN, LOTTO.MAX) &&
+      validate.isInLength([bonusNumber], LOTTO.MIN_COUNT) &&
       !winningNumbers.includes(bonusNumber);
 
     return isValid;
@@ -54,17 +49,6 @@ function WinnerInput() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    // 당첨 번호 검증
-    if (!checkWinningNumbers()) {
-      alert('정확한 당첨 번호를 입력해 주세요!');
-      return;
-    }
-
-    // 보너스 번호 검증
-    if (!checkBonusNumber()) {
-      alert('정확한 보너스 번호를 입력해 주세요!');
-      return;
-    }
 
     openModal();
   };
@@ -76,7 +60,7 @@ function WinnerInput() {
     closeModal();
     window.location.reload();
   };
-
+  console.log(!checkWinningNumbers() || !checkBonusNumber());
   return (
     <>
       <S.Form onSubmit={handleSubmit}>
@@ -109,7 +93,12 @@ function WinnerInput() {
           </S.InputRight>
         </S.InputSection>
 
-        <S.Button type="submit">결과 확인하기</S.Button>
+        <S.Button
+          type="submit"
+          disabled={!checkWinningNumbers() || !checkBonusNumber()}
+        >
+          결과 확인하기
+        </S.Button>
       </S.Form>
 
       <Modal isOpen={isModalOpen}>

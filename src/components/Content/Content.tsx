@@ -1,10 +1,10 @@
 import { ChangeEvent, useEffect, useRef } from 'react';
 import * as S from './Content.styled';
-import { getRandomNumbers } from '../../utils/getRandomNumbers';
 import Numbers from './Numbers/Numbers';
 import useLottoContext from '../../hooks/useLottoContext';
 import WinnerInput from './WinnerInput/WinnerInput';
 import useValidateInputValue from '../../hooks/useValidateInputValue';
+import { getRandomNumbers } from '../../utils/getRandomNumbers';
 
 function Content() {
   const {
@@ -14,7 +14,7 @@ function Content() {
     setLottoNumbers,
     setLottoCount,
   } = useLottoContext();
-  const { validateInputValue, isValid } =
+  const { validateInputValue, isValid, inputValue } =
     useValidateInputValue(inputAmountValue);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -27,13 +27,15 @@ function Content() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    
-    const validatedValue = validateInputValue(inputAmountValue);
-    if (validatedValue !== undefined) {
-      const count = validatedValue / 1000;
-      setLottoNumbers(getRandomNumbers(count));
-      setLottoCount(count);
-    }
+
+    const count = Number(inputValue) / 1000;
+    setLottoNumbers(getRandomNumbers(count));
+    setLottoCount(count);
+  };
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setInputAmountValue(event.target.value);
+    validateInputValue(event.target.value);
   };
 
   return (
@@ -48,11 +50,11 @@ function Content() {
               type="number"
               placeholder="금액"
               value={inputAmountValue}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                setInputAmountValue(event.target.value)
-              }
+              onChange={handleInputChange}
             />
-            <S.InputButton type="submit">구입</S.InputButton>
+            <S.InputButton type="submit" disabled={!isValid}>
+              구입
+            </S.InputButton>
           </S.InputButtonBox>
         </S.InputBox>
       </form>
