@@ -17,14 +17,6 @@ function Content() {
   const { validateInputValue, isValid, inputValue } =
     useValidateInputValue(inputAmountValue);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -46,7 +38,7 @@ function Content() {
           <S.InputLabelText>구입할 금액을 입력해주세요.</S.InputLabelText>
           <S.InputButtonBox>
             <S.Input
-              ref={inputRef}
+              autoFocus
               type="number"
               placeholder="금액"
               value={inputAmountValue}
