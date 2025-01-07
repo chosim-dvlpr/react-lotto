@@ -13,6 +13,7 @@ function WinnerInput() {
     setWinningNumbers,
     setBonusNumber,
     setInputAmountValue,
+    setLottoNumbers,
   } = useLottoContext();
   const { openModal, closeModal, isModalOpen } = useModal();
 
@@ -55,12 +56,11 @@ function WinnerInput() {
 
   const handleCloseModal = () => {
     setInputAmountValue('');
-    setWinningNumbers([]);
+    setWinningNumbers(Array(6).fill(''));
+    setLottoNumbers([]);
     setBonusNumber('');
     closeModal();
-    window.location.reload();
   };
-  console.log(!checkWinningNumbers() || !checkBonusNumber());
   return (
     <>
       <S.Form onSubmit={handleSubmit}>
