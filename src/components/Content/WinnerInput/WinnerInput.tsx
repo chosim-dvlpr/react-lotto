@@ -22,9 +22,11 @@ function WinnerInput() {
   const { openModal, closeModal, isModalOpen } = useModal();
 
   const handleWinningNumberChange = (index: number, value: string) => {
-    const newWinningNumbers = [...winningNumbers];
-    newWinningNumbers[index] = value;
-    setWinningNumbers(newWinningNumbers);
+    setWinningNumbers((prev) => [
+      ...prev.slice(0, index),
+      value,
+      ...prev.slice(index + 1),
+    ]);
   };
 
   const checkWinningNumbers = () => {

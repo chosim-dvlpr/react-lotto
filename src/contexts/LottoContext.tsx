@@ -3,15 +3,15 @@ import { RandomNumbersType } from '../types/randomNumbers';
 
 interface LottoContextProps {
   inputAmountValue: string;
-  setInputAmountValue: (amount: string) => void;
+  setInputAmountValue: React.Dispatch<React.SetStateAction<string>>;
   lottoNumbers: RandomNumbersType;
   lottoCount: number;
-  setLottoNumbers: (numbers: RandomNumbersType) => void;
-  setLottoCount: (count: number) => void;
+  setLottoNumbers: React.Dispatch<React.SetStateAction<RandomNumbersType>>;
+  setLottoCount: React.Dispatch<React.SetStateAction<number>>;
   winningNumbers: string[];
   bonusNumber: string;
-  setWinningNumbers: (numbers: string[]) => void;
-  setBonusNumber: (number: string) => void;
+  setWinningNumbers: React.Dispatch<React.SetStateAction<string[]>>;
+  setBonusNumber: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const LottoContext = createContext<LottoContextProps | undefined>(undefined);
