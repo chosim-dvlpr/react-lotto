@@ -2,30 +2,18 @@ import { LOTTO } from '../constants/lotto';
 
 export const validate = {
   isNumber(value: string) {
-    if (Number.isNaN(value)) {
-      return false;
-    }
-    return true;
+    return !Number.isNaN(value);
   },
   isInRange(numberValue: number, min: number, max: number) {
-    if (numberValue < min || numberValue > max) {
-      return false;
-    }
-    return true;
+    return numberValue >= min && numberValue <= max;
   },
   isInLength(numbers: string[], count: number) {
-    if (numbers.length !== count) {
-      return false;
-    }
-    return true;
+    return numbers.length === count;
   },
   isInUnit(numberValue: number) {
-    if (
-      0 < numberValue % LOTTO.AMOUNT_MIN &&
-      numberValue % LOTTO.AMOUNT_MIN < LOTTO.AMOUNT_MIN
-    ) {
-      return false;
-    }
-    return true;
+    return (
+      0 >= numberValue % LOTTO.AMOUNT_MIN ||
+      numberValue % LOTTO.AMOUNT_MIN >= LOTTO.AMOUNT_MIN
+    );
   },
 };
