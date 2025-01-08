@@ -33,11 +33,11 @@ function AnalyzedResult({ onClose }: AnalyzedResultProps) {
     useLottoContext();
 
   const results = useMemo<ResultsType[]>(() => {
-    return Object.values(lottoNumbers).map((values) => {
+    return Object.values(lottoNumbers).map((values: number[]) => {
       const matchCount = values.filter((value: number) =>
         winningNumbers.includes(String(value)),
       ).length;
-      const isBonus = values.includes(bonusNumber);
+      const isBonus = values.includes(Number(bonusNumber));
       return { matchCount, isBonus };
     });
   }, [lottoNumbers, winningNumbers, bonusNumber]);
