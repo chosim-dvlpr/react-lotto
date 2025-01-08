@@ -1,5 +1,5 @@
 import * as S from './AnalyzedResult.styled';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import useLottoContext from '../../../hooks/useLottoContext';
 import { PRIZE_MONEY } from '../../../constants/lotto';
 
@@ -31,67 +31,52 @@ const INITIAL_RESULT_VALUE = {
 function AnalyzedResult({ onClose }: AnalyzedResultProps) {
   const { lottoNumbers, winningNumbers, bonusNumber, inputAmountValue } =
     useLottoContext();
-  const [result, setResult] = useState<ResultType>(INITIAL_RESULT_VALUE);
 
-  const isResultTypeKey = (key: string): key is keyof ResultType => {
-    return Object.keys(result).includes(key);
-  };
-
-  const calculateResults = useMemo(() => {
+  const results = useMemo<ResultsType[]>(() => {
     return Object.values(lottoNumbers).map((values) => {
-      const matchCount = values.reduce((acc: number, value: number) => {
-        if (winningNumbers.includes(String(value))) {
-          return acc + 1;
-        }
-        return acc;
-      }, 0);
+      const matchCount = values.filter((value: number) =>
+        winningNumbers.includes(String(value)),
+      ).length;
       const isBonus = values.includes(bonusNumber);
       return { matchCount, isBonus };
     });
   }, [lottoNumbers, winningNumbers, bonusNumber]);
 
-  const handleResult = useCallback((results: ResultsType[]) => {
-    const updatedResult = { ...INITIAL_RESULT_VALUE };
-    results.forEach(({ matchCount, isBonus }) => {
-      if (isBonus && matchCount === 5) {
-        updatedResult.bonus += 1;
-      } else if (matchCount === 6) {
-        updatedResult['6'] += 1;
-      } else if (matchCount === 5) {
-        updatedResult['5'] += 1;
-      } else if (matchCount === 4) {
-        updatedResult['4'] += 1;
-      } else if (matchCount === 3) {
-        updatedResult['3'] += 1;
-      }
-    });
-    setResult(updatedResult);
-  }, []);
+  const rankResult = useMemo<ResultType>(() => {
+    return results.reduce(
+      (acc, { matchCount, isBonus }) => {
+        if (isBonus && matchCount === 5) acc.bonus += 1;
+        else if (matchCount === 6) acc['6'] += 1;
+        else if (matchCount === 5) acc['5'] += 1;
+        else if (matchCount === 4) acc['4'] += 1;
+        else if (matchCount === 3) acc['3'] += 1;
+        return acc;
+      },
+      { ...INITIAL_RESULT_VALUE },
+    );
+  }, [results]);
 
-  useEffect(() => {
-    const results = calculateResults;
-    handleResult(results);
-  }, []);
+  const isResultTypeKey = useCallback(
+    (key: string): key is keyof ResultType => {
+      return Object.keys(rankResult).includes(key);
+    },
+    [rankResult],
+  );
 
-  const calculateProfit = (result: ResultType) => {
-    let totalProfit = 0;
-    Object.entries(result).forEach(([key, count]) => {
+  const totalProfit = useMemo(() => {
+    return Object.entries(rankResult).reduce((profit, [key, count]) => {
       if (isResultTypeKey(key)) {
-        const prize = PRIZE_MONEY.get(key) ?? 0;
-        totalProfit += prize * count;
+        return profit + (PRIZE_MONEY.get(key) ?? 0) * count;
       }
-    });
+      return profit;
+    }, 0);
+  }, [rankResult, isResultTypeKey]);
 
-    return totalProfit;
-  };
-
-  const totalProfit = useMemo(() => calculateProfit(result), [result]);
   const calculateYield = useMemo(() => {
     const totalInvestment = parseInt(inputAmountValue, 10) ?? 0;
-    return Math.max(
-      0,
-      ((totalProfit - totalInvestment) / totalInvestment) * 100,
-    );
+    return totalInvestment > 0
+      ? ((totalProfit - totalInvestment) / totalInvestment) * 100
+      : 0;
   }, [totalProfit, inputAmountValue]);
 
   return (
@@ -110,7 +95,7 @@ function AnalyzedResult({ onClose }: AnalyzedResultProps) {
             <S.Tr key={key}>
               <S.Td>{key === 'bonus' ? '5개+보너스볼' : `${key}개`}</S.Td>
               <S.Td>{prize.toLocaleString()}원</S.Td>
-              <S.Td>{isResultTypeKey(key) ? result[key] : 0}개</S.Td>
+              <S.Td>{isResultTypeKey(key) ? rankResult[key] : 0}개</S.Td>
             </S.Tr>
           ))}
         </tbody>
